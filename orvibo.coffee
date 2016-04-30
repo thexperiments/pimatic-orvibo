@@ -5,7 +5,7 @@
 
 # ##The plugin code
 # Your plugin must export a single function, that takes one argument and returns a instance of
-# your plugin class. The parameter is an envirement object containing all pimatic related functions
+# your plugin class. The parameter is an environment object containing all pimatic related functions
 # and classes. See the [startup.coffee](http://sweetpi.de/pimatic/docs/startup.html) for details.
 module.exports = (env) ->
 
@@ -22,7 +22,7 @@ module.exports = (env) ->
   # Require dgram for UDP communication
   dgram = env.require 'dgram'
 
-  # Include you own depencies with nodes global require function:
+  # Include you own dependencies with nodes global require function:
   #  
   #     someThing = require 'someThing'
   #  
@@ -61,7 +61,7 @@ module.exports = (env) ->
       @mac = @config.mac
       @interval = 1000 * @config.interval
 
-      #as we are sobscribed the socket will also notify us about all powerstate changes
+      #as we are subscribed the socket will also notify us about all powerstate changes
       OrviboNode.on 'changePowerStateSuccessful', (successIp, successMac, successState) =>
         if successIp = @ip && successMac == @mac
           if @_state != successState
