@@ -275,7 +275,7 @@ var Orvibo = function() {
 
     server.on('error', function(err){
       _l('Server:' + err, LEVEL_ERROR);
-    })
+    });
 
     server.on('message', function (message, remote) {
         _l(remote.address + ':' + remote.port +' - ' + message.toString('hex'),LEVEL_DEBUG);
