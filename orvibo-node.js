@@ -35,46 +35,46 @@ var self;
 //server helpers
 
 function parseMessage(message, remote){
-  var messagHexString = message.toString('hex');
-  var magicCode = messagHexString.substr(0,4);
+  var messageHexString = message.toString('hex');
+  var magicCode = messageHexString.substr(0,4);
   if (magicCode == MAGIC_CODE){
     //magic code matches, message seems to come from orvibo device
     msgRealLength = createHexLengthString(message.length);
-    msgLength = messagHexString.substr(4,4);
+    msgLength = messageHexString.substr(4,4);
     if (msgLength == msgRealLength){
-      //extract ip from remot object
+      //extract ip from remote object
       messageIp = remote.address;
       _l('Message Ip:' + messageIp ,LEVEL_TRACE);
       //extract the command that triggered the answer
-      messageCommand = messagHexString.substr(8,4);
+      messageCommand = messageHexString.substr(8,4);
       _l('Message command:' + messageCommand ,LEVEL_TRACE);
       //extract the mac from the reply, ignore the padded 0x20s
-      messageMac = messagHexString.substr(12,12);
+      messageMac = messageHexString.substr(12,12);
       _l('Message Mac:' + messageMac ,LEVEL_TRACE);
 
       //do further extraction based on command
       switch (messageCommand){
         case COMMAND_DISCOVER:
           //was an answer to a discover
-          messageDeviceIdentifier = messagHexString.substr(62,12);
+          messageDeviceIdentifier = messageHexString.substr(62,12);
           messageDeviceIdentifierASCII = hexStringToAsciiString(messageDeviceIdentifier);
           _l('Message device identifier:' + messageDeviceIdentifierASCII, LEVEL_TRACE);
           if (messageDeviceIdentifierASCII.indexOf('SOC') != -1){
-            //we discovered a socet so we can extract the powerstate
-            messagePowerState = powerStateHexStringToBoolean(messagHexString.substr(82,2));
+            //we discovered a socket so we can extract the powerstate
+            messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(82,2));
             _l('Message power state:' + messagePowerState.toString(), LEVEL_TRACE);
           }
           if (messageDeviceIdentifierASCII.indexOf('IR') != -1){
-            //we discovered a allone so we can extract the powerstate
+            //we discovered a alone so we can extract the powerstate
             
           }
-          //emit event for new dicovery
-          _l('emitting deviceDicovered:' + messageCommand ,LEVEL_TRACE);
+          //emit event for new discovery
+          _l('emitting deviceDiscovered:' + messageCommand ,LEVEL_TRACE);
           self.emit('deviceDiscovered', messageIp, messageMac, messageDeviceIdentifierASCII);
           break;
         case COMMAND_SUBSCRIBE:
           //try to extract powerstate
-          messagePowerState = powerStateHexStringToBoolean(messagHexString.substr(46,2));
+          messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(46,2));
           _l('Message power state:' + messagePowerState.toString(), LEVEL_TRACE);
           //was an answer to subscribe
           _l('emitting subscribeSuccessful:' + messageCommand,LEVEL_TRACE);
@@ -82,7 +82,7 @@ function parseMessage(message, remote){
           break;
         case COMMAND_CHANGEPOWERSTATE_REPLY:
           //was answer to change powerstate
-          messagePowerState = powerStateHexStringToBoolean(messagHexString.substr(44,2));
+          messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(44,2));
           _l('Message power state:' + messagePowerState.toString(), LEVEL_TRACE);
           _l('emitting changePowerStateSuccessful:' + messageCommand ,LEVEL_TRACE);
           self.emit('changePowerStateSuccessful', messageIp, messageMac, messagePowerState);
@@ -91,7 +91,7 @@ function parseMessage(message, remote){
 
     }
     else{
-      _l('message length missmatch. Real length:' + msgRealLength 
+      _l('message length mismatch. Real length:' + msgRealLength 
                              + ' Stated length:' + msgLength, LEVEL_ERROR);
     }
   }
@@ -166,11 +166,11 @@ function createMacHexString(mac, isSubscribe){
     retHexMacString = retHexMacString + '20';
 
   }
-  //for subscribe we also need the mac with changed edianess
+  //for subscribe we also need the mac with changed endianness
   if (isSubscribe == true){
     //initial character index is last character
     var char_index = mac.length - 1;
-    //add little edian mac
+    //add little endian mac
     while (char_index > 0){
       retHexMacString = retHexMacString 
                       + mac.substr(char_index - 1, 2);
@@ -328,7 +328,7 @@ Orvibo.prototype.changePowerState = function(ip, mac, state){
     };
 
 
-    //send as soon as successfuly subscribed
+    //send as soon as successfully subscribed
     _l('subscribed, now sending command', LEVEL_TRACE);
     sendBuffer(ip,createPowerStateBuffer(mac,state));
 
