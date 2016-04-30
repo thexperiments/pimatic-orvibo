@@ -1,0 +1,35 @@
+{
+  "name": "pimatic-orvibo",
+  "description": "Pimatic plugin to controll Orvibo s20 wifi controlled outlets",
+  "author": {
+    "name": "Lukas Reinhart",
+    "email": "reinhart.lukas+npm@gmail.com"
+  },
+  "main": "orvibo",
+  "license": "GPL-2.0",
+  "files": [
+    "orvibo.coffee",
+    "README.md",
+    "orvibo-config-schema.coffee",
+    "device-config-schema.coffee",
+    "orvibo-node.js"
+  ],
+  "version": "0.0.1",
+  "homepage": "https://github.com/thexperiments/pimatic-orvibo",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/thexperiments/pimatic-orvibo.git"
+  },
+  "configSchema": "orvibo-config-schema.coffee",
+  "dependencies": {
+    "bluebird": "^3.3.5"
+  },
+  "peerDependencies": {
+    "pimatic": ">=0.8.0 <1.0.0"
+  },
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  }
+}
