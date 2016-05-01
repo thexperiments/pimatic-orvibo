@@ -16,10 +16,6 @@ module.exports = (env) ->
   # Require the  bluebird promise library
   Promise = env.require 'bluebird'
 
-  # Require the [cassert library](https://github.com/rhoot/cassert).
-  assert = env.require 'cassert'
-
-  # Require dgram for UDP communication
   dgram = env.require 'dgram'
 
   # Include you own dependencies with nodes global require function:

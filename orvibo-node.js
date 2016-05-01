@@ -37,27 +37,27 @@ module.exports = function (promise) {
   function parseMessage(message, remote){
     var messageHexString = message.toString('hex');
     var magicCode = messageHexString.substr(0,4);
-    if (magicCode == MAGIC_CODE){
+    if (magicCode == MAGIC_CODE) {
       //magic code matches, message seems to come from orvibo device
-      msgRealLength = createHexLengthString(message.length);
-      msgLength = messageHexString.substr(4,4);
+      var msgRealLength = createHexLengthString(message.length);
+      var msgLength = messageHexString.substr(4,4);
       if (msgLength == msgRealLength){
         //extract ip from remote object
-        messageIp = remote.address;
+        var messageIp = remote.address;
         _l('Message Ip:' + messageIp ,LEVEL_TRACE);
         //extract the command that triggered the answer
-        messageCommand = messageHexString.substr(8,4);
+        var messageCommand = messageHexString.substr(8,4);
         _l('Message command:' + messageCommand ,LEVEL_TRACE);
         //extract the mac from the reply, ignore the padded 0x20s
-        messageMac = messageHexString.substr(12,12);
+        var messageMac = messageHexString.substr(12,12);
         _l('Message Mac:' + messageMac ,LEVEL_TRACE);
 
         //do further extraction based on command
         switch (messageCommand){
           case COMMAND_DISCOVER:
             //was an answer to a discover
-            messageDeviceIdentifier = messageHexString.substr(62,12);
-            messageDeviceIdentifierASCII = hexStringToAsciiString(messageDeviceIdentifier);
+            var messageDeviceIdentifier = messageHexString.substr(62,12);
+            var messageDeviceIdentifierASCII = hexStringToAsciiString(messageDeviceIdentifier);
             _l('Message device identifier:' + messageDeviceIdentifierASCII, LEVEL_TRACE);
             if (messageDeviceIdentifierASCII.indexOf('SOC') != -1){
               //we discovered a socket so we can extract the powerstate
@@ -74,7 +74,7 @@ module.exports = function (promise) {
             break;
           case COMMAND_SUBSCRIBE:
             //try to extract powerstate
-            messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(46,2));
+            var messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(46,2));
             _l('Message power state:' + messagePowerState.toString(), LEVEL_TRACE);
             //was an answer to subscribe
             _l('emitting subscribeSuccessful:' + messageCommand,LEVEL_TRACE);
@@ -82,7 +82,7 @@ module.exports = function (promise) {
             break;
           case COMMAND_CHANGEPOWERSTATE_REPLY:
             //was answer to change powerstate
-            messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(44,2));
+            var messagePowerState = powerStateHexStringToBoolean(messageHexString.substr(44,2));
             _l('Message power state:' + messagePowerState.toString(), LEVEL_TRACE);
             _l('emitting changePowerStateSuccessful:' + messageCommand ,LEVEL_TRACE);
             self.emit('changePowerStateSuccessful', messageIp, messageMac, messagePowerState);
@@ -102,7 +102,7 @@ module.exports = function (promise) {
 
   var sendBuffer = function(ip, buffer, callback){
     server.send(buffer, 0, buffer.length, PORT, ip, function(err, bytes){
-      if (err) _l('Faild to send UDP message to ' + ip +':'+ PORT, LEVEL_ERROR);
+      if (err) _l('Failed to send UDP message to ' + ip +':'+ PORT, LEVEL_ERROR);
       _l('UDP message sent to ' + ip +':'+ PORT, LEVEL_DEBUG);
     })
   };
@@ -137,13 +137,13 @@ module.exports = function (promise) {
   function createBuffer (bufferHexString){
     var retBuffer = new Buffer(bufferHexString, 'hex');
     retBuffer = patchBufferLength(retBuffer);
-    _l("Created buffer:" + retBuffer.toString('hex'),LEVEL_TRACE)
+    _l("Created buffer:" + retBuffer.toString('hex'),LEVEL_TRACE);
     return retBuffer;
   }
 
   function patchBufferLength(buffer){
     _l('patchBufferLength',LEVEL_TRACE);
-    bufferSizeHexString = createHexLengthString(buffer.length);
+    var bufferSizeHexString = createHexLengthString(buffer.length);
     _l('Buffer size:' + bufferSizeHexString,LEVEL_TRACE);
     if (bufferSizeHexString.length <= 2){
       //size not exceeding one byte, we need padding
@@ -199,7 +199,7 @@ module.exports = function (promise) {
   }
 
   function powerStateHexStringToBoolean(powerStateHexString){
-    shortPowerStateHexString = powerStateHexString.substr(powerStateHexString.length - 2, 2);
+    var shortPowerStateHexString = powerStateHexString.substr(powerStateHexString.length - 2, 2);
     if (shortPowerStateHexString == '01'){
       return true;
     }
@@ -250,7 +250,7 @@ module.exports = function (promise) {
   }
 
   function hexStringToAsciiString(hexString){
-    stringBuffer = new Buffer(hexString,'hex');
+    var stringBuffer = new Buffer(hexString,'hex');
     return stringBuffer.toString('ascii');
   }
 
@@ -259,13 +259,13 @@ module.exports = function (promise) {
   var Orvibo = function() {
     self = this;
     e.EventEmitter.call(this);
-    var LOCAL_IP = "0.0.0.0";
+    LOCAL_IP = "0.0.0.0";
     //and bind the UDP server to all interfaces
     server.bind(PORT, LOCAL_IP, function(){
       server.setBroadcast(true);
       _l('UDP Server ready for sending',LEVEL_INFO);
       self.emit("serverReady");
-    })
+    });
 
     server.on('listening', function () {
       var address = server.address();
@@ -290,7 +290,7 @@ module.exports = function (promise) {
 
 //discover interface
   Orvibo.prototype.discover = function(callback){
-    createDiscoveryBuffer(function(buffer,callback){
+    createDiscoveryBuffer(function(buffer, callback){
       //discover devices
       sendBuffer(BROADCAST_IP,createDiscoveryBuffer());
     })
@@ -338,7 +338,7 @@ module.exports = function (promise) {
         return promise.reject();
       });
     });
-  }
+  };
 
 //outlet interface
   Orvibo.prototype.getPowerState = function(ip, mac){
