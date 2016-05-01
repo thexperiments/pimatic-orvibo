@@ -102,7 +102,7 @@ function parseMessage(message, remote){
 
 var sendBuffer = function(ip, buffer, callback){
   server.send(buffer, 0, buffer.length, PORT, ip, function(err, bytes){
-    if (err) throw err;
+    if (err) _l('Faild to send UDP message to ' + ip +':'+ PORT, LEVEL_ERROR);
     _l('UDP message sent to ' + ip +':'+ PORT, LEVEL_DEBUG);
   })
 }

@@ -27,7 +27,7 @@ module.exports = (env) ->
   #     someThing = require 'someThing'
   #  
 
-  OrviboNode = require './orvibo-node.js'
+  OrviboNode = require './orvibo-node.js', env
 
   class Orvibo extends env.plugins.Plugin
 
