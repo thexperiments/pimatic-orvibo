@@ -22,9 +22,7 @@
     "url": "git://github.com/thexperiments/pimatic-orvibo.git"
   },
   "configSchema": "orvibo-config-schema.coffee",
-  "dependencies": {
-    "bluebird": ">=2.10.2"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "pimatic": ">=0.8.0 <1.0.0"
   },
