@@ -54,7 +54,7 @@ module.exports = (env) ->
       @name = @config.name
       @id = @config.id
       @ip = @config.ip
-      @mac = @config.mac
+      @mac = (@config.mac || "").toLowerCase().trim()
       @interval = 1000 * @config.interval
 
       #as we are subscribed the socket will also notify us about all powerstate changes
