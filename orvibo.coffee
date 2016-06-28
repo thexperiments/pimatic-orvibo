@@ -15,8 +15,10 @@ module.exports = (env) ->
 
   # Require the  bluebird promise library
   Promise = env.require 'bluebird'
+  _ = env.require 'lodash'
 
   dgram = env.require 'dgram'
+  os = require 'os'
 
   # Include you own dependencies with nodes global require function:
   #  
@@ -47,6 +49,74 @@ module.exports = (env) ->
           return new OrviboOutlet(config, @, lastState)
       })
 
+      @framework.deviceManager.on('discover', (eventData) =>
+        outletsFound = {}
+        lastId = ""
+
+        OrviboNode.on 'deviceDiscovered', cb = (messageIp, messageMac, messageDeviceIdentifierASCII) =>
+          unless not messageMac? or messageMac.length is 0 or _.has outletsFound, messageMac
+            outletsFound[messageMac] = messageIp
+            lastId = @_generateDeviceId "orvibo", lastId
+            config =
+              class: 'OrviboOutlet'
+              id: lastId
+              name: lastId
+              ip: messageIp
+              mac: messageMac
+
+            @framework.deviceManager.discoveredDevice(
+              'pimatic-orvibo', "#{lastId}@#{messageIp}", config
+            )
+
+        setTimeout(=>
+          OrviboNode.removeListener 'deviceDiscovered', cb
+        , eventData.time || 20000
+        )
+
+        # ping all devices in each net:
+        @enumerateNetworkInterfaces().forEach( (networkInterface) =>
+          basePart = networkInterface.address.match(/([0-9]+\.[0-9]+\.[0-9]+\.)[0-9]+/)[1]
+
+          @framework.deviceManager.discoverMessage(
+            'pimatic-orvibo', "Scanning #{basePart}0/24 for Orvibo outlets"
+          )
+          OrviboNode.discover "#{basePart}255"
+        )
+      )
+
+    # get all ip4 non local networks with /24 submask
+    enumerateNetworkInterfaces: () ->
+      result = []
+      networkInterfaces = os.networkInterfaces()
+      Object.keys(networkInterfaces).forEach( (name) ->
+        networkInterfaces[name].forEach (networkInterface) ->
+          if 'IPv4' isnt networkInterface.family or networkInterface.internal isnt false
+            # skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+            return
+          if networkInterface.netmask isnt "255.255.255.0"
+            return
+          result.push
+            name: name
+            address: networkInterface.address
+        return
+      )
+      if result.length is 0
+        # fallback to global broadcast
+        result.push
+          name: '255.255.255.255/32'
+          address: '255.255.255.255'
+      return result
+
+    _generateDeviceId: (prefix, lastId = null) ->
+      start = 1
+      if lastId?
+        m = lastId.match /.*-([0-9]+)$/
+        start = +m[1] + 1 if m? and m.length is 2
+      for x in [start...1000] by 1
+        result = "#{prefix}-#{x}"
+        matched = @framework.deviceManager.devicesConfig.some (element, iterator) ->
+          element.id is result
+        return result if not matched
 
   class OrviboOutlet extends env.devices.PowerSwitch
     #
