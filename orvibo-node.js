@@ -68,6 +68,8 @@ module.exports = function (promise) {
               //we discovered a alone so we can extract the powerstate
 
             }
+            // in case of a discovery response the messageCommand is padded with 2 bytes
+            messageMac = messageHexString.substr(14,12);
             //emit event for new discovery
             _l('emitting deviceDiscovered:' + messageCommand ,LEVEL_TRACE);
             self.emit('deviceDiscovered', messageIp, messageMac, messageDeviceIdentifierASCII);
@@ -289,11 +291,9 @@ module.exports = function (promise) {
   util.inherits(Orvibo, e.EventEmitter);
 
 //discover interface
-  Orvibo.prototype.discover = function(callback){
-    createDiscoveryBuffer(function(buffer, callback){
+  Orvibo.prototype.discover = function(broadcastAddress){
       //discover devices
-      sendBuffer(BROADCAST_IP,createDiscoveryBuffer());
-    })
+      sendBuffer(broadcastAddress || BROADCAST_IP, createDiscoveryBuffer());
   };
 
 //outlet interface
