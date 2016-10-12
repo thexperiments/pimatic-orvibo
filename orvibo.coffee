@@ -129,7 +129,7 @@ module.exports = (env) ->
 
       #as we are subscribed the socket will also notify us about all powerstate changes
       OrviboNode.on 'changePowerStateSuccessful', (successIp, successMac, successState) =>
-        if successIp = @ip && successMac == @mac
+        if successIp == @ip && successMac == @mac
           if @_state != successState
             @_setState successState
       
