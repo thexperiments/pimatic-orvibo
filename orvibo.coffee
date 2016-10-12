@@ -149,7 +149,7 @@ module.exports = (env) ->
     getState: () ->
       return OrviboNode.getPowerState(@ip, @mac).then (state) =>
         @_setState(state)
-        return Promise.resolve()
+        return Promise.resolve(state)
 
     changeStateTo: (state) ->
       return OrviboNode.changePowerState(@ip, @mac, state).then () =>
