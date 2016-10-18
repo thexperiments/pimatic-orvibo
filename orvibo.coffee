@@ -44,6 +44,7 @@ module.exports = (env) ->
       env.logger.info("Starting pimatic-orvibo plugin")
 
       @framework.deviceManager.registerDeviceClass("OrviboOutlet", {
+        prepareConfig: OrviboOutlet.prepareConfig,
         configDef: deviceConfigDef.OrviboOutlet,
         createCallback: (config, lastState) =>
           return new OrviboOutlet(config, @, lastState)
@@ -119,12 +120,20 @@ module.exports = (env) ->
         return result if not matched
 
   class OrviboOutlet extends env.devices.PowerSwitch
+
+    @prepareConfig: (config) =>
+      mac = (config.mac || '').replace /\W/g, ''
+      if mac.length is 12
+        config.mac = mac.toLowerCase().trim()
+      else
+        env.logger.error "Invalid MAC address: #{config.mac || 'Property "mac" missing'}"
+
     #
     constructor: (@config, @plugin, lastState) ->
       @name = @config.name
       @id = @config.id
       @ip = @config.ip
-      @mac = (@config.mac || "").toLowerCase().trim()
+      @mac = @config.mac || ''
       @interval = 1000 * @config.interval
 
       #as we are subscribed the socket will also notify us about all powerstate changes
